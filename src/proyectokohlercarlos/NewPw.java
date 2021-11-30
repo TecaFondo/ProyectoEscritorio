@@ -5,16 +5,28 @@
  */
 package proyectokohlercarlos;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author TecaFondo
  */
 public class NewPw extends javax.swing.JFrame {
-
+    private ArrayList<Usuario> usrs = new ArrayList<>();
     /**
      * Creates new form NewPw
      */
     public NewPw() {
+        initComponents();
+    }
+    public NewPw(ArrayList<Usuario> usrs){
+        this.usrs=usrs;
         initComponents();
     }
 
@@ -59,7 +71,7 @@ public class NewPw extends javax.swing.JFrame {
             }
         });
 
-        jBsalir.setText("Cancelar");
+        jBsalir.setText("Salir");
         jBsalir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBsalirActionPerformed(evt);
@@ -100,7 +112,7 @@ public class NewPw extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(96, 96, 96)
                 .addComponent(jBaceptar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 135, Short.MAX_VALUE)
                 .addComponent(jBsalir)
                 .addGap(86, 86, 86))
         );
@@ -137,19 +149,38 @@ public class NewPw extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
-        // TODO add your handling code here:
-        new Menu().setVisible(true);
+        try {
+            // TODO add your handling code here:
+            new Menu(this.usrs).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(NewPw.class.getName()).log(Level.SEVERE, null, ex);
+        }
         dispose();
     }//GEN-LAST:event_jBsalirActionPerformed
 
     private void jBaceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBaceptarActionPerformed
         // TODO add your handling code here:
         if(existeUsuario(jTusr.getText())){
-            if(correctPass(jPpwOld.getText())){
+            if(correctPass(jTusr.getText(),jPpwOld.getText())){
                 if(jPpwNew1.getText().equals(jPpwNew2.getText())){
-                    //actualizar usuario
+                    for(int i =0; i<this.usrs.size();i++){
+                        if(jTusr.getText().equals(this.usrs.get(i).getUsr())){
+                            this.usrs.get(i).setPwd(jPpwNew1.getText());
+                            System.out.println(this.usrs.get(i).getPwd());
+                            System.out.println("nueva pass seteada.");
+                        }
+                    }
+                }
+                else{
+                    JOptionPane.showMessageDialog(this, "Las conraseñas no coinsiden", "Error", 1);
                 }
             }
+            else{
+                JOptionPane.showMessageDialog(this, "Contraseña incorrecta", "Error", 1);
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "Usuario Inexistente", "Error", 1);
         }
     }//GEN-LAST:event_jBaceptarActionPerformed
 
@@ -202,11 +233,24 @@ public class NewPw extends javax.swing.JFrame {
     private javax.swing.JTextField jTusr;
     // End of variables declaration//GEN-END:variables
 
-    private boolean existeUsuario(String text) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private boolean existeUsuario(String usr) {
+        for(int i=0;i<this.usrs.size();i++){
+            if(usr.equals(this.usrs.get(i).getUsr())){
+                System.out.println("si");
+                return true;
+                
+            }
+        }
+        return false;
     }
 
-    private boolean correctPass(String text) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private boolean correctPass(String usr,String clave) {
+        for(int i=0;i<this.usrs.size();i++){
+            if(usr.equals(this.usrs.get(i).getUsr())&&clave.equals(this.usrs.get(i).getPwd())){
+                System.out.println("tapotente");
+                return true;
+            }
+        }
+        return false;
     }
 }

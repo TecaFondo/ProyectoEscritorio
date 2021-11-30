@@ -2,6 +2,7 @@ package proyectokohlercarlos;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -16,11 +17,15 @@ import javax.swing.JOptionPane;
  * @author Carlos Kohler A.K.A TecaFondo
  */
 public class EasyLogGUI extends javax.swing.JFrame {
-
+    private ArrayList<Usuario> usrs= new ArrayList<>();
     /**
      * Creates new form Log_InGUI
      */
     public EasyLogGUI() {
+        initComponents();
+    }
+    public EasyLogGUI(ArrayList<Usuario> usrs){
+        this.usrs=usrs;
         initComponents();
     }
 
@@ -132,21 +137,27 @@ public class EasyLogGUI extends javax.swing.JFrame {
 
     private void jEasyLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEasyLogActionPerformed
         // TODO add your handling code here:
-        
-        if("admin".equals(jUsr.getText()) && "admin".equals(jPass.getText())){
-            EasyKeyGUI ek1 = null;
-            try {
-                ek1 = new EasyKeyGUI();
-            } catch (SQLException ex) {
-                Logger.getLogger(EasyLogGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            new EasyLogGUI().setVisible(false);
-            ek1.setVisible(true);
-            dispose();
+        int flag=0;
+        for(int i=0;i<this.usrs.size();i++){
+            if(this.usrs.get(i).getUsr().equals(jUsr.getText()) && this.usrs.get(i).getPwd().equals(jPass.getText())){
+                flag=1;
+                EasyKeyGUI ek1 = null;
+                try {
+                    ek1 = new EasyKeyGUI(this.usrs.get(i));
+                } catch (SQLException ex) {
+                    Logger.getLogger(EasyLogGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                new EasyLogGUI().setVisible(false);
+                ek1.setVisible(true);
+                dispose();
+            }                                   
+            
         }
-        else{
+        if(flag==0){
             JOptionPane.showMessageDialog(null, "Usuario o Contraseña incorrectas");
         }
+        
+        
     }//GEN-LAST:event_jEasyLogActionPerformed
 
     private void jPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPassActionPerformed
@@ -154,8 +165,12 @@ public class EasyLogGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jPassActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        new Menu().setVisible(true);
+        try {
+            // TODO add your handling code here:
+            new Menu().setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(EasyLogGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
         dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 

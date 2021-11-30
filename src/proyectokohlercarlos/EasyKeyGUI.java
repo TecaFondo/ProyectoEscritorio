@@ -23,12 +23,18 @@ import javax.swing.table.DefaultTableModel;
  * @author Carlos Kohler A.K.A TecaFondo
  */
 public class EasyKeyGUI extends javax.swing.JFrame {
-
+    private Usuario usr;
     /**
      * Creates new form encriptaGUI
      * @throws java.sql.SQLException
      */
     public EasyKeyGUI() throws SQLException {
+        this.cn = cc.conexion();
+        initComponents();
+        mostrardatos("");
+    }
+    public EasyKeyGUI(Usuario usr) throws SQLException {
+        this.usr=usr;
         this.cn = cc.conexion();
         initComponents();
         mostrardatos("");
@@ -55,7 +61,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         try {
             Statement st = cn.createStatement();
             ResultSet rs = st.executeQuery(sql);
-            while(rs.next()){
+            while(rs.next() && rs.getString(6).equalsIgnoreCase(this.usr.getUsr())){
                 datos[0]=rs.getString(1);
                 datos[1]=rs.getString(2);
                 datos[2]=rs.getString(3);
@@ -537,13 +543,14 @@ public class EasyKeyGUI extends javax.swing.JFrame {
                 }
                 
             }
-            try{
-                PreparedStatement pst = cn.prepareStatement("INSERT INTO clave (ID, Nombre, Clave, Descripcion, MET) VALUES (?,?,?,?,?)");
+            try{ //carga de datos a la base de datos
+                PreparedStatement pst = cn.prepareStatement("INSERT INTO clave (ID,Nombre, Clave, Descripcion, MET, Usuario) VALUES (?,?,?,?,?,?)"); //estructura de carga
                 pst.setString(1, jLid.getText());
                 pst.setString(2, jTNombre.getText());
                 pst.setString(4, jFfinal.getText());
                 pst.setString(3, jTDescripcion.getText());
                 pst.setInt(5, met);
+                pst.setString(6, this.usr.getUsr());
                 pst.execute();
                 pst.executeUpdate();
                 }
@@ -561,8 +568,6 @@ public class EasyKeyGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         //Descripta las palabras/fraces
-        
-        
         
         int fila = jTInfo.getSelectedRow();
         if (fila >= 0){

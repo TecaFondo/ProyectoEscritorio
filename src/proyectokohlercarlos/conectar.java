@@ -26,6 +26,11 @@ public class conectar {
                    " MET INT(1),"
                      + "PRIMARY KEY(ID))";
             statement.executeUpdate(table);
+            table = "CREATE TABLE usuarios (" +
+                   " Nombre VARCHAR(255), " + 
+                   " Clave VARCHAR(255), " + 
+                   "PRIMARY KEY(Nombre))";
+            statement.executeUpdate(table);
             System.out.println("Base de datos creada");
             
         }
@@ -44,8 +49,14 @@ public class conectar {
                    " Nombre VARCHAR(255), " + 
                    " Clave VARCHAR(255), " + 
                    " Descripcion VARCHAR(255), " + 
-                   " MET INT(1),"
-                     + "PRIMARY KEY(ID))";
+                   " MET INT(1),"+
+                   "Usuario VARCHAR(255),"+
+                   "PRIMARY KEY(ID))";
+                statement.executeUpdate(table);
+                table = "CREATE TABLE usuarios (" +
+                   " Nombre VARCHAR(255), " + 
+                   " Clave VARCHAR(255), " + 
+                   "PRIMARY KEY(Nombre))";
                 statement.executeUpdate(table);
                 System.out.println("Base de datos creada");
                 //statement.executeUpdate(table);

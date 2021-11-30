@@ -5,17 +5,96 @@
  */
 package proyectokohlercarlos;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author TecaFondo
  */
-public class Menu extends javax.swing.JFrame {
+public class Menu extends javax.swing.JFrame{
+    private ArrayList<Usuario> usrs= new ArrayList<>();
 
     /**
      * Creates new form Menu
      */
-    public Menu() {
+    public Menu() throws SQLException{
+        this.cn = cc.conexion();
         initComponents();
+        guardarDatos("");
+    }
+    public Menu(ArrayList<Usuario> usrs) throws SQLException{
+        this.cn=cc.conexion();
+        initComponents();
+        if(this.usrs.size()<usrs.size()){
+            for(int i=this.usrs.size();i<usrs.size();i++){
+                this.usrs.add(usrs.get(i));
+                cargarDatos(usrs.get(i)); //Se cargan usuarios nuevos a la base de datos
+            }
+        }
+        if(this.usrs.size()==usrs.size()){ //Actualiza los cambios realizados a la base de datos
+            this.usrs=usrs;
+            for(int i=0;i<this.usrs.size();i++){
+                try{
+                    String query = "DELETE FROM usuarios WHERE nombre = ?";
+                    PreparedStatement pst = cn.prepareStatement(query);
+                    pst.setString(1,this.usrs.get(i).getUsr());
+                    pst.executeUpdate();
+                }
+                catch (SQLException e){
+                    System.out.println("a");
+                }
+            }
+            for(int i=0;i<this.usrs.size();i++){
+                cargarDatos(this.usrs.get(i));
+            }
+        }
+        
+        
+    }
+    void guardarDatos(String valor) throws SQLException{// Metodo mostrardatos
+        
+        String sql="";
+        if (valor.equals("")){
+            sql="SELECT * FROM usuarios";
+        }
+        else{
+            System.out.println(valor);
+            sql="SELECT * FROM usuarios WHERE Nombre='"+valor+"'";
+        }
+        
+        try {
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while(rs.next()){ //se incorporan los usuarios de la base de datos a un array list local para trabajo dentro de app.
+                this.usrs.add(new Usuario(rs.getString(1),rs.getString(2)));
+                System.out.println(usrs.get(0).getUsr()); // impresion para ver action performed
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(EasyKeyGUI.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("");
+        }
+        
+    }
+    
+    void cargarDatos(Usuario usr) throws SQLException{
+        try{ //carga de datos a la base de datos
+                PreparedStatement pst = cn.prepareStatement("INSERT INTO usuarios (Nombre, Clave) VALUES (?,?)"); //estructura de carga
+                pst.setString(1, usr.getUsr());
+                pst.setString(2, usr.getPwd());
+                pst.execute();
+                pst.executeUpdate();
+                }
+            catch (Exception e){
+                }
     }
 
     /**
@@ -110,15 +189,15 @@ public class Menu extends javax.swing.JFrame {
     private void jBirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBirActionPerformed
         // TODO add your handling code here:
         if( jCopciones.getSelectedItem().equals("Login") ){
-            new EasyLogGUI().setVisible(true);
+            new EasyLogGUI(this.usrs).setVisible(true);
             dispose();
         }
         else if(jCopciones.getSelectedItem().equals("Nuevo Usuario")){
-            new NewUsr().setVisible(true);
+            new NewUsr(this.usrs).setVisible(true);
             dispose();
         }
         else if(jCopciones.getSelectedItem().equals("Cambiar Contraseña")){
-            new NewPw().setVisible(true);
+            new NewPw(this.usrs).setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jBirActionPerformed
@@ -158,7 +237,11 @@ public class Menu extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Menu().setVisible(true);
+                try {
+                    new Menu().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -170,4 +253,6 @@ public class Menu extends javax.swing.JFrame {
     private javax.swing.JLabel jLogo;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
+    conectar cc = new conectar();
+    Connection cn;
 }

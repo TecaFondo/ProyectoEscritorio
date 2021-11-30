@@ -5,6 +5,10 @@
  */
 package proyectokohlercarlos;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -12,11 +16,15 @@ import javax.swing.JOptionPane;
  * @author TecaFondo
  */
 public class NewUsr extends javax.swing.JFrame {
-
+    private ArrayList<Usuario> usrs = new ArrayList<>();
     /**
      * Creates new form NewUsr
      */
-    public NewUsr() {
+    public NewUsr(){
+        initComponents();
+    }
+    public NewUsr(ArrayList<Usuario> usrs) {
+        this.usrs=usrs;
         initComponents();
     }
 
@@ -43,7 +51,7 @@ public class NewUsr extends javax.swing.JFrame {
 
         jTextField1.setText("jTextField1");
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
         jLabel1.setText("Nombre de Usuario:");
 
@@ -162,14 +170,22 @@ public class NewUsr extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         if(jTFusr.getText().length()>0&& jPpw1.getText().length()>0&&jPpw2.getText().length()>0){
-            if(jPpw1.getText().equals(jPpw2.getText())==true){
+            int flag=1;
+            for(int i=0;i<this.usrs.size();i++){
+                if(jTFusr.getText().equals(this.usrs.get(i).getUsr())){
+                    flag=0;
+                    JOptionPane.showMessageDialog(this, "Usuario existente", "Error", 1);
+                }
+            }
+            if(jPpw1.getText().equals(jPpw2.getText())==true && flag==1){
                 Usuario usr = new Usuario();
                 //agregar usuarios a un ArrayList.
                 usr.setUsr(jTFusr.getText());
                 usr.setPwd(jPpw1.getText());
+                this.usrs.add(usr);
                 //Agregar usuarios a la base de datos.
             }
-            else{
+            else if(flag==1){
                 JOptionPane.showMessageDialog(this, "Contraseñas no coinciden", "Error", 2);
             }
         }
@@ -179,8 +195,12 @@ public class NewUsr extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        new Menu().setVisible(true);
+        try {
+            // TODO add your handling code here:
+            new Menu(this.usrs).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(NewUsr.class.getName()).log(Level.SEVERE, null, ex);
+        }
         dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
