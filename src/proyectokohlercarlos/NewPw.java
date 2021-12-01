@@ -182,6 +182,13 @@ public class NewPw extends javax.swing.JFrame {
         else{
             JOptionPane.showMessageDialog(this, "Usuario Inexistente", "Error", 1);
         }
+        try {
+            // TODO add your handling code here:
+            new Menu(this.usrs).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(NewPw.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        dispose();
     }//GEN-LAST:event_jBaceptarActionPerformed
 
     /**

@@ -49,7 +49,7 @@ public class Menu extends javax.swing.JFrame{
                     pst.executeUpdate();
                 }
                 catch (SQLException e){
-                    System.out.println("a");
+                    System.out.println("a"+e);
                 }
             }
             for(int i=0;i<this.usrs.size();i++){
@@ -75,7 +75,7 @@ public class Menu extends javax.swing.JFrame{
             ResultSet rs = st.executeQuery(sql);
             while(rs.next()){ //se incorporan los usuarios de la base de datos a un array list local para trabajo dentro de app.
                 this.usrs.add(new Usuario(rs.getString(1),rs.getString(2)));
-                System.out.println(usrs.get(0).getUsr()); // impresion para ver action performed
+                //System.out.println(usrs.get(0).getUsr()); // impresion para ver action performed
             }
             
         } catch (SQLException ex) {

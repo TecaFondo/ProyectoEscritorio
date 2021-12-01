@@ -192,6 +192,13 @@ public class NewUsr extends javax.swing.JFrame {
         else{
             JOptionPane.showMessageDialog(this, "Complete todos los campos de texto", "Error", 1);
         }
+        try {
+            // TODO add your handling code here:
+            new Menu(this.usrs).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(NewUsr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

@@ -1,6 +1,7 @@
 package proyectokohlercarlos;
 
 
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +42,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
     }
     void mostrardatos(String valor){// Metodo mostrardatos
         DefaultTableModel modelo = new DefaultTableModel();
-        modelo.addColumn("ID");
+        modelo.addColumn("Ultima Modificacion");
         modelo.addColumn("Nombre");
         modelo.addColumn("Descripcion");
         modelo.addColumn("Clave");
@@ -54,20 +55,24 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         }
         else{
                     System.out.println(valor);
-            sql="SELECT * FROM clave WHERE ID='"+valor+"'";
+            sql="SELECT * FROM clave WHERE Nombre='"+valor+"'";
         }
         
         String []datos = new String[5];
         try {
             Statement st = cn.createStatement();
             ResultSet rs = st.executeQuery(sql);
-            while(rs.next() && rs.getString(6).equalsIgnoreCase(this.usr.getUsr())){
-                datos[0]=rs.getString(1);
-                datos[1]=rs.getString(2);
-                datos[2]=rs.getString(3);
-                datos[3]=rs.getString(4);
-                datos[4]=rs.getString(5);
-                modelo.addRow(datos);
+            while(rs.next()){
+                if(rs.getString(6).equals(this.usr.getUsr())){
+                    //System.out.println("mostrando ");
+                    datos[0]=rs.getString(1);
+                    datos[1]=rs.getString(2);
+                    datos[2]=rs.getString(3);
+                    datos[3]=rs.getString(4);
+                    datos[4]=rs.getString(5);
+                    modelo.addRow(datos);
+                }
+                
             }
             jTInfo.setModel(modelo);
         } catch (SQLException ex) {
@@ -89,10 +94,10 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         popmActualizar2 = new javax.swing.JPopupMenu();
         menModificar2 = new javax.swing.JMenuItem();
         menEliminar = new javax.swing.JMenuItem();
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jLClave = new javax.swing.JLabel();
         jLMetodo = new javax.swing.JLabel();
-        jCBmetodos = new javax.swing.JComboBox();
         jBcifrar = new javax.swing.JButton();
         jLFinal = new javax.swing.JLabel();
         jFfinal = new javax.swing.JFormattedTextField();
@@ -105,10 +110,14 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         jLbid = new javax.swing.JScrollPane();
         jTInfo = new javax.swing.JTable();
         jBMos = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLid = new javax.swing.JTextField();
         jBdelete = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        jMetodo1 = new javax.swing.JRadioButton();
+        jMetodo2 = new javax.swing.JRadioButton();
+        jBmenu = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jTBuscar = new javax.swing.JTextField();
+        jBbuscar = new javax.swing.JButton();
 
         menModificar2.setText("Modificar");
         menModificar2.addActionListener(new java.awt.event.ActionListener() {
@@ -132,14 +141,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
 
         jLMetodo.setText("Metodo de cifrado:");
 
-        jCBmetodos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "EZ", "EZ3" }));
-        jCBmetodos.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCBmetodosActionPerformed(evt);
-            }
-        });
-
-        jBcifrar.setText("Cifrar");
+        jBcifrar.setText("Cifrar/Guardar");
         jBcifrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBcifrarActionPerformed(evt);
@@ -194,8 +196,6 @@ public class EasyKeyGUI extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("ID (IRREPETIBLE)*");
-
         jBdelete.setText("Eliminar");
         jBdelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -204,6 +204,34 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         });
 
         jLabel2.setText("EasyKey v0.5.4 by Carlos Kohler @TecaFondo");
+
+        buttonGroup1.add(jMetodo1);
+        jMetodo1.setSelected(true);
+        jMetodo1.setText("EZ (simple)");
+        jMetodo1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMetodo1ActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(jMetodo2);
+        jMetodo2.setText("EZ3 (mayor seguridad)");
+
+        jBmenu.setText("Salir");
+        jBmenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBmenuActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Buscar Contraseña:");
+
+        jBbuscar.setText("Buscar");
+        jBbuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBbuscarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -215,39 +243,43 @@ public class EasyKeyGUI extends javax.swing.JFrame {
                     .addComponent(jTDescripcion)
                     .addComponent(jTNombre)
                     .addComponent(jTpalabra)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLid, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 268, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(22, 22, 22)
-                                .addComponent(jCBmetodos, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(63, 63, 63)
-                                .addComponent(jLMetodo)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jBcifrar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jBMos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jBdelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(72, 72, 72))
                     .addComponent(jFfinal, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLbid, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLClave)
-                            .addComponent(jLFinal)
-                            .addComponent(jLDescripcion))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jLbid, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 982, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLNombre)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)
-                        .addGap(13, 13, 13)))
+                        .addGap(13, 13, 13))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLMetodo)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLClave)
+                            .addComponent(jLFinal)
+                            .addComponent(jLDescripcion)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jMetodo1)
+                                    .addComponent(jMetodo2))
+                                .addGap(118, 118, 118)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jBbuscar)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jBcifrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jBMos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jBdelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jBmenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(72, 72, 72)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -278,28 +310,32 @@ public class EasyKeyGUI extends javax.swing.JFrame {
                             .addComponent(jButton1)
                             .addComponent(jBdelete)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLMetodo)
+                        .addGap(12, 12, 12)
+                        .addComponent(jMetodo1)
+                        .addGap(5, 5, 5)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jMetodo2)
                             .addComponent(jLabel1)
-                            .addComponent(jLMetodo))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jCBmetodos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(31, 31, 31)
+                            .addComponent(jTBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jBbuscar))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jBmenu)
+                .addGap(2, 2, 2)
                 .addComponent(jLFinal)
                 .addGap(18, 18, 18)
                 .addComponent(jFfinal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLbid, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -316,7 +352,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
 
     private void jBcifrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBcifrarActionPerformed
         // TODO add your handling code here:
-        
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         
         sape = "";
         jFfinal.setText(""); // elimina el contenido de jFfinal
@@ -324,10 +360,10 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         int []ascii = new int [largo];// Esto es para separar las letras a cifrar
         char []caracteres = new char [largo];
         int []asciifinal = new int [largo];
-        if(jCBmetodos.getSelectedItem().toString()=="EZ"){
-        met = 1;//Metodo de cifrado EZ
+        if(jMetodo1.isSelected()){
+            met = 1;//Metodo de cifrado EZ
         }
-        else if(jCBmetodos.getSelectedItem().toString()=="EZ3"){
+        else if(jMetodo2.isSelected()){
             met=2;//Metodo de cifrado EZ3
         }
         palabra = jTpalabra.getText();//toma la palabra del cuadro de texto
@@ -335,10 +371,13 @@ public class EasyKeyGUI extends javax.swing.JFrame {
             ascii[x] = palabra.codePointAt(x);   
         }
         
-        if(jLid.getText().isEmpty()){ //Verifica si los campos obligatorios están rellenos, si no es así se pide que se llenen
+        //Se ha eliminado id de usuario para incorporar multiples usuarios, fue reemplazado por fecha de modificacion (esta es unica e irrepetible)
+        
+        /*if(jLid.getText().isEmpty()){ //Verifica si los campos obligatorios están rellenos, si no es así se pide que se llenen
             JOptionPane.showMessageDialog(null, "Llene todos los campos obligatorios");
-        }
-        else if(jTNombre.getText().isEmpty()){
+        }*/
+        
+        if(jTNombre.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Llene todos los campos obligatorios");
         }
         else if(jTpalabra.getText().isEmpty()){
@@ -544,26 +583,24 @@ public class EasyKeyGUI extends javax.swing.JFrame {
                 
             }
             try{ //carga de datos a la base de datos
-                PreparedStatement pst = cn.prepareStatement("INSERT INTO clave (ID,Nombre, Clave, Descripcion, MET, Usuario) VALUES (?,?,?,?,?,?)"); //estructura de carga
-                pst.setString(1, jLid.getText());
+                PreparedStatement pst = cn.prepareStatement("INSERT INTO clave (ID, Nombre, Clave, Descripcion, MET, Usuario) VALUES (?,?,?,?,?,?)"); //estructura de carga
+                pst.setString(1, timestamp.toString() );
                 pst.setString(2, jTNombre.getText());
                 pst.setString(4, jFfinal.getText());
                 pst.setString(3, jTDescripcion.getText());
                 pst.setInt(5, met);
                 pst.setString(6, this.usr.getUsr());
+                //System.out.println(usr.getUsr()); //usado para testeo
                 pst.execute();
-                pst.executeUpdate();
+                //pst.executeUpdate();
                 }
-            catch (Exception e){
-                }
+            catch (SQLException e){
+                System.out.println(e);
+            }
             mostrardatos("");
         }
             
     }//GEN-LAST:event_jBcifrarActionPerformed
-
-    private void jCBmetodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBmetodosActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCBmetodosActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
@@ -571,12 +608,12 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         
         int fila = jTInfo.getSelectedRow();
         if (fila >= 0){
-            jLid.setText(jTInfo.getValueAt(fila, 0).toString());
+           // jLid.setText(jTInfo.getValueAt(fila, 0).toString());
             jTNombre.setText(jTInfo.getValueAt(fila, 1).toString());
             jTpalabra.setText(jTInfo.getValueAt(fila, 3).toString());
             jTDescripcion.setText(jTInfo.getValueAt(fila, 2).toString());
             met= Integer.parseInt(jTInfo.getValueAt(fila, 4).toString());//Metodo de cifrado/descifrado
-            System.out.println(met);
+            //System.out.println(met);
 ;
         }
         else{
@@ -816,7 +853,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
                 
             } 
             else if (response == JOptionPane.YES_OPTION) {
-                jLid.setText(jTInfo.getValueAt(fila, 0).toString());
+             //   jLid.setText(jTInfo.getValueAt(fila, 0).toString());
             jTNombre.setText(jTInfo.getValueAt(fila, 1).toString());
             jTpalabra.setText(jTInfo.getValueAt(fila, 3).toString());
             jTDescripcion.setText(jTInfo.getValueAt(fila, 2).toString());
@@ -875,7 +912,7 @@ public class EasyKeyGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         int fila = jTInfo.getSelectedRow();
         if (fila >= 0){
-            jLid.setText(jTInfo.getValueAt(fila, 0).toString());
+            //jLid.setText(jTInfo.getValueAt(fila, 0).toString());
             jTNombre.setText(jTInfo.getValueAt(fila, 1).toString());
             jTDescripcion.setText(jTInfo.getValueAt(fila, 2).toString());
             jTpalabra.setText(jTInfo.getValueAt(fila,3).toString());
@@ -896,9 +933,28 @@ public class EasyKeyGUI extends javax.swing.JFrame {
             mostrardatos("");
         }
         catch (Exception e){
-
+            
         }
     }//GEN-LAST:event_menEliminarActionPerformed
+
+    private void jMetodo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMetodo1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMetodo1ActionPerformed
+
+    private void jBmenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBmenuActionPerformed
+        // TODO add your handling code here:
+        try {
+                new Menu().setVisible(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(EasyKeyGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            dispose();
+    }//GEN-LAST:event_jBmenuActionPerformed
+
+    private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
+        // TODO add your handling code here:
+        mostrardatos(jTBuscar.getText());
+    }//GEN-LAST:event_jBbuscarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -941,11 +997,13 @@ public class EasyKeyGUI extends javax.swing.JFrame {
     int met = 0;
     String sape = "";
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jBMos;
+    private javax.swing.JButton jBbuscar;
     private javax.swing.JButton jBcifrar;
     private javax.swing.JButton jBdelete;
+    private javax.swing.JButton jBmenu;
     private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox jCBmetodos;
     private javax.swing.JFormattedTextField jFfinal;
     private javax.swing.JLabel jLClave;
     private javax.swing.JLabel jLDescripcion;
@@ -955,8 +1013,10 @@ public class EasyKeyGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jLbid;
-    private javax.swing.JTextField jLid;
+    private javax.swing.JRadioButton jMetodo1;
+    private javax.swing.JRadioButton jMetodo2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField jTBuscar;
     private javax.swing.JTextField jTDescripcion;
     private javax.swing.JTable jTInfo;
     private javax.swing.JTextField jTNombre;
